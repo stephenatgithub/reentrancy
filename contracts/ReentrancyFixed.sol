@@ -17,16 +17,16 @@ contract ReEntrancyGuard {
         balances[msg.sender] += msg.value;
     }
 
+	// Use function modifiers that prevent re-entrancy
     function withdraw() public noReentrant {
         uint bal = balances[msg.sender];
         require(bal > 0);
+		
+		// Ensure all state changes happen before calling external contracts
+		balances[msg.sender] = 0;
 
         (bool sent, ) = msg.sender.call{value: bal}("");
-        // stopped here
-        // reverted with reason string 'Failed to send Ether'
-        require(sent, "Failed to send Ether");
-
-        balances[msg.sender] = 0;
+        require(sent, "Failed to send Ether");        
     }
 
     // Helper function to check the balance of this contract
